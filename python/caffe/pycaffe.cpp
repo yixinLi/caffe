@@ -164,52 +164,6 @@ struct CaffeNet
     }
   }
 
-  void ForwardAndExtractFeats(list bottom, list all_blobs) {
-    vector<Blob<float>*>& input_blobs = net_->input_blobs();
-    CHECK_EQ(len(bottom), input_blobs.size());
-    //CHECK_EQ(len(top), net_->num_outputs());
-    // First, copy the input
-    for (int i = 0; i < input_blobs.size(); ++i) {
-      object elem = bottom[i];
-      PyArrayObject* arr = reinterpret_cast<PyArrayObject*>(elem.ptr());
-      check_array_against_blob(arr, input_blobs[i]);
-      switch (Caffe::mode()) {
-      case Caffe::CPU:
-        memcpy(input_blobs[i]->mutable_cpu_data(), PyArray_DATA(arr),
-            sizeof(float) * input_blobs[i]->count());
-        break;
-      case Caffe::GPU:
-        cudaMemcpy(input_blobs[i]->mutable_gpu_data(), PyArray_DATA(arr),
-            sizeof(float) * input_blobs[i]->count(), cudaMemcpyHostToDevice);
-        break;
-      default:
-        LOG(FATAL) << "Unknown Caffe mode.";
-      }  // switch (Caffe::mode())
-    }
-    //LOG(INFO) << "Start";
-    net_->ForwardPrefilled();
-    //LOG(INFO) << "End";
-    const vector<shared_ptr<Blob<float> > >& intermediate_blobs = net_->blobs();
-    for (int i = 0; i < intermediate_blobs.size(); ++i) {
-      object elem = all_blobs[i];
-      PyArrayObject* arr = reinterpret_cast<PyArrayObject*>(elem.ptr());
-      //check_array_against_blob(arr, intermediate_blobs[i]);
-      switch (Caffe::mode()) {
-      case Caffe::CPU:
-        memcpy(PyArray_DATA(arr), intermediate_blobs[i]->cpu_data(),
-            sizeof(float) * intermediate_blobs[i]->count());
-        break;
-      case Caffe::GPU:
-        cudaMemcpy(PyArray_DATA(arr), intermediate_blobs[i]->gpu_data(),
-            sizeof(float) * intermediate_blobs[i]->count(), cudaMemcpyDeviceToHost);
-        break;
-      default:
-        LOG(FATAL) << "Unknown Caffe mode.";
-      }
-    }
-
-  }
-
   void Backward(list top_diff, list bottom_diff) {
     vector<Blob<float>*>& output_blobs = net_->output_blobs();
     vector<Blob<float>*>& input_blobs = net_->input_blobs();
@@ -283,7 +237,6 @@ BOOST_PYTHON_MODULE(pycaffe)
   boost::python::class_<CaffeNet>(
       "CaffeNet", boost::python::init<string, string>())
       .def("Forward",         &CaffeNet::Forward)
-      .def("ForwardAndExtractFeats", &CaffeNet::ForwardAndExtractFeats)
       .def("Backward",        &CaffeNet::Backward)
       .def("set_mode_cpu",    &CaffeNet::set_mode_cpu)
       .def("set_mode_gpu",    &CaffeNet::set_mode_gpu)

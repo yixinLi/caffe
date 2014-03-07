@@ -3,7 +3,7 @@ layers {
   layer {
     name: "mnist"
     type: "data"
-    source: "/mnt/neocortex/scratch/zhangyuting/data/mnist-fakelevel-db/train"
+    source: "mnist-train-leveldb"
     batchsize: 64
     scale: 0.00390625
   }

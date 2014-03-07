@@ -108,13 +108,7 @@ void caffe_cpu_tanh(const int n, const Dtype* x, Dtype* y);
 
 template <typename Dtype>
 void caffe_gpu_tanh(const int n, const Dtype* x, Dtype* y);
-    
-template <typename Dtype>
-void caffe_cpu_sigm(const int n, const Dtype* x, Dtype* y);
-    
-template <typename Dtype>
-void caffe_gpu_sigm(const int n, const Dtype* x, Dtype* y);
-    
+
 template <typename Dtype>
 void caffe_cpu_sech2(const int n, const Dtype* x, Dtype* y);
 
@@ -126,21 +120,6 @@ Dtype caffe_cpu_asum(const int n, const Dtype* x);
 
 template <typename Dtype>
 Dtype caffe_gpu_asum(const int n, const Dtype* x);
-
-template <typename Dtype>
-void caffe_cpu_diagmat(const int n, const Dtype beta, Dtype* x);
-    
-template <typename Dtype>
-void caffe_diagaxpy(const int N, const Dtype alpha, const Dtype* X, Dtype* Y);
-    
-//template <typename Dtype>
-//void caffe_gpu_diagaxpy(const int N, const float alpha, const float* X, float* Y);
-//    
-//template <typename Dtype>
-//void caffe_gpu_diagaxpy(const int N, const double alpha, const double* X, double* Y);
-
-template <typename Dtype>
-void caffe_gpu_matrix_diag_add_constant(const int N, Dtype* a,                                                   const Dtype lambdas);
 
 template <typename Dtype>
 void caffe_abs(const int n, const Dtype* a, Dtype* y);
