@@ -1,0 +1,3 @@
+/mnt/neocortex/scratch/reedscot/data/imagenet/val/
+ilsvrc_2012_val.txt
+

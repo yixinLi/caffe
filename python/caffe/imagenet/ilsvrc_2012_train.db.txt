@@ -1,0 +1,3 @@
+/mnt/neocortex/scratch/reedscot/data/imagenet/train/
+ilsvrc_2012_train.txt
+
