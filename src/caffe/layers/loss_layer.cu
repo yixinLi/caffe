@@ -122,6 +122,69 @@ Dtype EuclideanLossLayer<Dtype>::Backward_cpu(const vector<Blob<Dtype>*>& top,
   return loss;
 }
 
+
+template <typename Dtype>
+void L2LossLayer<Dtype>::SetUp(
+  const vector<Blob<Dtype>*>& bottom, vector<Blob<Dtype>*>* top) {
+  CHECK_EQ(bottom.size(), 2) << "Loss Layer takes two blobs as input.";
+  CHECK_EQ(top->size(), 0) << "Loss Layer takes no as output.";
+  CHECK_EQ(bottom[0]->num(), bottom[1]->num())
+      << "The data and label should have the same number.";
+  CHECK_EQ(bottom[0]->channels(), bottom[1]->channels());
+  CHECK_EQ(bottom[0]->height(), bottom[1]->height());
+  CHECK_EQ(bottom[0]->width(), bottom[1]->width());
+  CHECK_EQ(bottom[0]->height(), bottom[0]->width()) << "input should be square matrices.";
+  CHECK_EQ(bottom[0]->channels(), 1);
+  difference_.Reshape(bottom[0]->num(), bottom[0]->channels(),
+      bottom[0]->height(), bottom[0]->width());
+  diag_plus_lambda_.Reshape(1, 1,
+      bottom[0]->height(), bottom[0]->width());
+  LAMBDA_ = this->layer_param_.lambda();
+}
+
+template <typename Dtype>
+Dtype L2LossLayer<Dtype>::Backward_cpu(const vector<Blob<Dtype>*>& top,
+    const bool propagate_down, vector<Blob<Dtype>*>* bottom) {
+  int count = (*bottom)[0]->count();
+  int num = (*bottom)[0]->num();
+  int N = (*bottom)[0]->width();
+  int channels = (*bottom)[0]->channels();
+
+  caffe_sub(count, (*bottom)[0]->cpu_data(), (*bottom)[1]->cpu_data(),
+      difference_.mutable_cpu_data());
+   
+  Dtype loss;
+
+  for (int i = 0; i < num * channels; i++) {
+      caffe_cpu_diagmat(N, (Dtype)LAMBDA_, diag_plus_lambda_.mutable_cpu_data());
+      caffe_diagaxpy(N, (Dtype)1.0, ((*bottom)[1]->cpu_data()) + i * N * N, diag_plus_lambda_.mutable_cpu_data());
+      caffe_sqr(N * N, diag_plus_lambda_.mutable_cpu_data(), diag_plus_lambda_.mutable_cpu_data());
+      caffe_cpu_gemm(CblasNoTrans,CblasNoTrans, N, N, N, (Dtype)1.0, diag_plus_lambda_.mutable_cpu_data(),
+          difference_.mutable_cpu_data() + i * N * N, (Dtype)0.0, diag_plus_lambda_.mutable_cpu_data());
+      // compute loss
+      loss += caffe_cpu_dot(N * N, diag_plus_lambda_.mutable_cpu_data(),
+          diag_plus_lambda_.mutable_cpu_data());
+      // compute gradient
+      caffe_axpby(N * N, Dtype(1.0) / num, diag_plus_lambda_.mutable_cpu_data(), Dtype(0),
+          (*bottom)[0]->mutable_cpu_diff() + i * N * N);
+  }
+  for (int i = 0; i < num * channels; i++) {
+      caffe_cpu_diagmat(N, LAMBDA_, diag_plus_lambda_.mutable_cpu_data());
+      caffe_diagaxpy(N, (Dtype)1.0, ((*bottom)[1]->cpu_data()) + i * N * N, diag_plus_lambda_.mutable_cpu_data());
+      caffe_sqr(N * N, diag_plus_lambda_.mutable_cpu_data(), diag_plus_lambda_.mutable_cpu_data());
+      caffe_cpu_gemm('N','N', N, N, N, (Dtype)1.0, diag_plus_lambda_.mutable_cpu_data(),
+          difference_.mutable_cpu_data() + i * N * N, (Dtype)0.0, diag_plus_lambda_.mutable_cpu_data());
+      // compute loss
+      loss += caffe_cpu_dot(N * N, diag_plus_lambda_.mutable_cpu_data(),
+          diag_plus_lambda_.mutable_cpu_data());
+      // compute gradient
+      caffe_axpby(N * N, Dtype(1.0) / num, diag_plus_lambda_.mutable_cpu_data(), Dtype(0),
+      (*bottom)[0]->mutable_cpu_diff() + i * N * N);
+  }
+  loss = loss / num / Dtype(2);
+  return loss;
+}
+
 template <typename Dtype>
 void AccuracyLayer<Dtype>::SetUp(
   const vector<Blob<Dtype>*>& bottom, vector<Blob<Dtype>*>* top) {
@@ -168,6 +231,7 @@ void AccuracyLayer<Dtype>::Forward_cpu(const vector<Blob<Dtype>*>& bottom,
 INSTANTIATE_CLASS(MultinomialLogisticLossLayer);
 INSTANTIATE_CLASS(InfogainLossLayer);
 INSTANTIATE_CLASS(EuclideanLossLayer);
+INSTANTIATE_CLASS(L2LossLayer);
 INSTANTIATE_CLASS(AccuracyLayer);
 
 }  // namespace caffe

@@ -1,6 +1,7 @@
 // Copyright 2013 Yangqing Jia
 
 #include <mkl.h>
+#include <mkl_lapacke.h>
 #include <cublas_v2.h>
 #include "caffe/common.hpp"
 #include "caffe/util/math_functions.hpp"
@@ -270,7 +271,7 @@ template <>
 void caffe_exp<double>(const int n, const double* a, double* y) {
   vdExp(n, a, y);
 }
-
+    
 template <>
 float caffe_cpu_dot<float>(const int n, const float* x, const float* y) {
   return cblas_sdot(n, x, 1, y, 1);
@@ -301,6 +302,28 @@ void caffe_cpu_tanh<float>(const int n, const float* x, float* y) {
 template <>
 void caffe_cpu_tanh<double>(const int n, const double* x, double* y) {
   vdTanh( n, x, y );
+}
+    
+template <>
+void caffe_cpu_sigm<float>(const int n, const float* x, float* y) {
+    cblas_scopy(n, x, 1, y, 1);
+    cblas_sscal(n, -1, y, 1);
+    vsExp(n, y, y);
+    for (int i = 0; i < n; ++i) {
+        y[i] += 1;
+    }
+    vsInv(n, y, y);
+}
+    
+template <>
+void caffe_cpu_sigm<double>(const int n, const double* x, double* y) {
+    cblas_dcopy(n, x, 1, y, 1);
+    cblas_dscal(n, -1, y, 1);
+    vdExp(n, y, y);
+    for (int i = 0; i < n; ++i) {
+        y[i] += 1;
+    }
+    vdInv(n, y, y);
 }
 
 template <>
@@ -335,9 +358,7 @@ float caffe_cpu_asum<float>(const int n, const float* x) {
 template <>
 double caffe_cpu_asum<double>(const int n, const double* x) {
 	return cblas_dasum( n, x, 1 );
-
 }
-
 
 template <>
 float caffe_gpu_asum<float>(const int n, const float* x) {
@@ -352,6 +373,43 @@ double caffe_gpu_asum<double>(const int n, const double* x) {
 	CUBLAS_CHECK(cublasDasum( Caffe::cublas_handle(), n, x, 1, &y ));
 	return y;
 }
+    
+template <>
+void caffe_cpu_diagmat<float>(const int n, const float beta, float* x) {
+//    LAPACKE_slaset('A', n, n, 0, beta, x, n);
+    for (int i = 0; i < n*n; ++i) {
+        if (i%(n+1)) {
+          x[i] = beta;
+        }
+        else {
+            x[i] = 0;
+        }
+    }
+}
+  
+template <>
+void caffe_cpu_diagmat<double>(const int n, const double beta, double* x) {
+//    LAPACKE_dlaset('A', n, n, 0, beta, x, n);
+    for (int i = 0; i < n*n; ++i) {
+        if (i%(n+1)) {
+            x[i] = beta;
+        }
+        else {
+            x[i] = 0;
+        }
+    }
+}
 
+    
+template <>
+void caffe_diagaxpy<float>(const int N, const float alpha, const float* X,
+    float* Y) { cblas_saxpy(N * N, alpha, X, N+1, Y, N+1); }
+
+template <>
+void caffe_diagaxpy<double>(const int N, const double alpha, const double* X,
+    double* Y) { cblas_daxpy(N * N, alpha, X, N+1, Y, N+1); }
+    
+    
+    
 
 }  // namespace caffe

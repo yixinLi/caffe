@@ -43,6 +43,25 @@ class ReLULayer : public NeuronLayer<Dtype> {
   virtual Dtype Backward_gpu(const vector<Blob<Dtype>*>& top,
       const bool propagate_down, vector<Blob<Dtype>*>* bottom);
 };
+    
+template <typename Dtype>
+class SigmoidLayer : public NeuronLayer<Dtype> {
+public:
+    explicit SigmoidLayer(const LayerParameter& param)
+    : NeuronLayer<Dtype>(param) {}
+        
+protected:
+    virtual void Forward_cpu(const vector<Blob<Dtype>*>& bottom,
+        vector<Blob<Dtype>*>* top);
+    virtual void Forward_gpu(const vector<Blob<Dtype>*>& bottom,
+        vector<Blob<Dtype>*>* top);
+        
+    virtual Dtype Backward_cpu(const vector<Blob<Dtype>*>& top,
+        const bool propagate_down, vector<Blob<Dtype>*>* bottom);
+    virtual Dtype Backward_gpu(const vector<Blob<Dtype>*>& top,
+        const bool propagate_down, vector<Blob<Dtype>*>* bottom);
+};
+
 
 template <typename Dtype>
 class TanhLayer : public NeuronLayer<Dtype> {
@@ -67,8 +86,7 @@ class TanhLayer : public NeuronLayer<Dtype> {
   virtual Dtype Backward_gpu(const vector<Blob<Dtype>*>& top,
       const bool propagate_down, vector<Blob<Dtype>*>* bottom);
 };
-
-
+    
 template <typename Dtype>
 class BNLLLayer : public NeuronLayer<Dtype> {
  public:
@@ -540,6 +558,31 @@ class EuclideanLossLayer : public Layer<Dtype> {
   // virtual Dtype Backward_gpu(const vector<Blob<Dtype>*>& top,
   //     const bool propagate_down, vector<Blob<Dtype>*>* bottom);
   Blob<Dtype> difference_;
+};
+    
+    
+template <typename Dtype>
+class L2LossLayer : public Layer<Dtype> {
+public:
+    explicit L2LossLayer(const LayerParameter& param)
+    : Layer<Dtype>(param), difference_() {}
+    virtual void SetUp(const vector<Blob<Dtype>*>& bottom,
+                        vector<Blob<Dtype>*>* top);
+        
+protected:
+    // The loss layer will do nothing during forward - all computation are
+    // carried out in the backward pass.
+    virtual void Forward_cpu(const vector<Blob<Dtype>*>& bottom,
+        vector<Blob<Dtype>*>* top) { return; }
+    virtual void Forward_gpu(const vector<Blob<Dtype>*>& bottom,
+        vector<Blob<Dtype>*>* top) { return; }
+    virtual Dtype Backward_cpu(const vector<Blob<Dtype>*>& top,
+        const bool propagate_down, vector<Blob<Dtype>*>* bottom);
+//    virtual Dtype Backward_gpu(const vector<Blob<Dtype>*>& top,
+//        const bool propagate_down, vector<Blob<Dtype>*>* bottom);
+    Blob<Dtype> difference_;
+    Blob<Dtype> diag_plus_lambda_;
+    float LAMBDA_;
 };
 
 
