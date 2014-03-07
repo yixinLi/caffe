@@ -43,6 +43,8 @@ Layer<Dtype>* GetLayer(const LayerParameter& param) {
     return new InnerProductLayer<Dtype>(param);
   } else if (type == "lrn") {
     return new LRNLayer<Dtype>(param);
+  } else if (type == "l2_loss") {
+    return new L2LossLayer<Dtype>(param);
   } else if (type == "padding") {
     return new PaddingLayer<Dtype>(param);
   } else if (type == "pool") {
@@ -51,6 +53,8 @@ Layer<Dtype>* GetLayer(const LayerParameter& param) {
     return new ReLULayer<Dtype>(param);
   } else if (type == "tanh") {
     return new TanhLayer<Dtype>(param);
+  } else if (type == "sigmoid") {
+      return new SigmoidLayer<Dtype>(param);
   } else if (type == "softmax") {
     return new SoftmaxLayer<Dtype>(param);
   } else if (type == "softmax_loss") {

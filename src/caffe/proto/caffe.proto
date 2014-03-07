@@ -82,6 +82,10 @@ message LayerParameter {
   // For data layers, specify if we want to randomly mirror data.
   optional bool mirror = 21 [default = false];
 
+  // For L2 loss layers, specify regularization parameter.
+  optional float lambda = 23;
+
+
   // The blobs containing the numeric parameters of the layer
   repeated BlobProto blobs = 50;
   // The ratio that is multiplied on the global learning rate. If you want to set
