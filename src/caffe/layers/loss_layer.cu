@@ -156,7 +156,7 @@ Dtype L2LossLayer<Dtype>::Backward_cpu(const vector<Blob<Dtype>*>& top,
   Dtype loss;
 
   for (int i = 0; i < num * channels; i++) {
-      caffe_cpu_diagmat(N, (Dtype)LAMBDA_, diag_plus_lambda_.mutable_cpu_data());
+      caffe_cpu_diagmat(N, LAMBDA_, diag_plus_lambda_.mutable_cpu_data());
       caffe_diagaxpy(N, (Dtype)1.0, ((*bottom)[1]->cpu_data()) + i * N * N, diag_plus_lambda_.mutable_cpu_data());
       caffe_sqr(N * N, diag_plus_lambda_.mutable_cpu_data(), diag_plus_lambda_.mutable_cpu_data());
       caffe_cpu_gemm(CblasNoTrans,CblasNoTrans, N, N, N, (Dtype)1.0, diag_plus_lambda_.mutable_cpu_data(),
@@ -172,7 +172,7 @@ Dtype L2LossLayer<Dtype>::Backward_cpu(const vector<Blob<Dtype>*>& top,
       caffe_cpu_diagmat(N, LAMBDA_, diag_plus_lambda_.mutable_cpu_data());
       caffe_diagaxpy(N, (Dtype)1.0, ((*bottom)[1]->cpu_data()) + i * N * N, diag_plus_lambda_.mutable_cpu_data());
       caffe_sqr(N * N, diag_plus_lambda_.mutable_cpu_data(), diag_plus_lambda_.mutable_cpu_data());
-      caffe_cpu_gemm('N','N', N, N, N, (Dtype)1.0, diag_plus_lambda_.mutable_cpu_data(),
+      caffe_cpu_gemm(CblasNoTrans,CblasNoTrans, N, N, N, (Dtype)1.0, diag_plus_lambda_.mutable_cpu_data(),
           difference_.mutable_cpu_data() + i * N * N, (Dtype)0.0, diag_plus_lambda_.mutable_cpu_data());
       // compute loss
       loss += caffe_cpu_dot(N * N, diag_plus_lambda_.mutable_cpu_data(),
