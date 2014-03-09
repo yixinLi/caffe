@@ -83,7 +83,7 @@ int main(int argc, char** argv) {
 
 	  // LOG(INFO) << "Image " << (i+1) << " / " << lines.size();
 
-	  std::ifstream cur_infile( ( root_dir + "/" + lines[i].first ).c_str(), std::ios_base::binary );
+	  std::ifstream cur_infile( ( root_dir + "/" + lines[i].first + ".jpg").c_str(), std::ios_base::binary );
 
 	  cur_infile.seekg( 0, std::ios_base::end );
 	  size_t cur_infile_size = cur_infile.tellg();

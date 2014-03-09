@@ -582,6 +582,7 @@ protected:
 //        const bool propagate_down, vector<Blob<Dtype>*>* bottom);
     Blob<Dtype> difference_;
     Blob<Dtype> diag_plus_lambda_;
+    int SIZE_;
     Dtype LAMBDA_;
 };
 

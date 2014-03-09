@@ -128,13 +128,17 @@ void L2LossLayer<Dtype>::SetUp(
   const vector<Blob<Dtype>*>& bottom, vector<Blob<Dtype>*>* top) {
   CHECK_EQ(bottom.size(), 2) << "Loss Layer takes two blobs as input.";
   CHECK_EQ(top->size(), 0) << "Loss Layer takes no as output.";
+
+  SIZE_ = this->layer_param_.l2_size();
+  (*bottom)[0]->Reshape(bottom[0]->count()/(SIZE_*SIZE_), 1, SIZE_, SIZE_);
+
   CHECK_EQ(bottom[0]->num(), bottom[1]->num())
       << "The data and label should have the same number.";
   CHECK_EQ(bottom[0]->channels(), bottom[1]->channels());
   CHECK_EQ(bottom[0]->height(), bottom[1]->height());
   CHECK_EQ(bottom[0]->width(), bottom[1]->width());
   CHECK_EQ(bottom[0]->height(), bottom[0]->width()) << "input should be square matrices.";
-  CHECK_EQ(bottom[0]->channels(), 1);
+
   difference_.Reshape(bottom[0]->num(), bottom[0]->channels(),
       bottom[0]->height(), bottom[0]->width());
   diag_plus_lambda_.Reshape(1, 1,
@@ -190,6 +194,9 @@ void AccuracyLayer<Dtype>::SetUp(
   const vector<Blob<Dtype>*>& bottom, vector<Blob<Dtype>*>* top) {
   CHECK_EQ(bottom.size(), 2) << "Accuracy Layer takes two blobs as input.";
   CHECK_EQ(top->size(), 1) << "Accuracy Layer takes 1 output.";
+
+  (*bottom)[0]->Reshape(bottom[0]->count(), 1, 1, 1);
+
   CHECK_EQ(bottom[0]->num(), bottom[1]->num())
       << "The data and label should have the same number.";
   CHECK_EQ(bottom[1]->channels(), 1);

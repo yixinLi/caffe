@@ -82,8 +82,9 @@ message LayerParameter {
   // For data layers, specify if we want to randomly mirror data.
   optional bool mirror = 21 [default = false];
 
-  // For L2 loss layers, specify regularization parameter.
+  // For L2 loss layers, specify regularization parameter and the size of image.
   optional float lambda = 23;
+  optional uint32 l2_size = 24;
 
 
   // The blobs containing the numeric parameters of the layer
