@@ -3,8 +3,8 @@ layers {
   layer {
     name: "data"
     type: "data"
-    source: "/home/yutingzh/private-shared/caffe.modified/python/caffe/imagenet/ilsvrc_2012_train.db.txt"
-    meanfile: "/home/yutingzh/zhangyuting-nfs1/imagenet/imagenet-mean.binaryproto"
+    source: "/mnt/neocortex/scratch/zhangyuting/data/imagenet-fakeleveldb/train"
+    meanfile: "/mnt/neocortex/scratch/zhangyuting/imagenet/imagenet-mean.binaryproto"
     batchsize: 256
     cropsize: 227
     mirror: true

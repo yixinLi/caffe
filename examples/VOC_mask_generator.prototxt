@@ -17,9 +17,17 @@ layers {
     source: "/home/yixinl/VOC_imagedb/Masks/train"
     batchsize: 256
     mirror: false
-    color_type: grayscale
+    color_type: "grayscale"
   }
   top: "masks"
+  top: "mask_label"
+}
+layers {
+  layer {
+    name: "empty"
+    type: "empty"
+  }
+  bottom: "label"
   top: "mask_label"
 }
 layers {

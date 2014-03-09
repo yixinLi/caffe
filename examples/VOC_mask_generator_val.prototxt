@@ -12,14 +12,22 @@ layers {
 }
 layers {
   layer {
-    name: "data"
+    name: "masks"
     type: "data"
     source: "/home/yixinl/VOC_imagedb/Masks/val"
     batchsize: 50
     mirror: false
-    color_type: grayscale
+    color_type: "grayscale"
   }
   top: "masks"
+  top: "mask_label"
+}
+layers {
+  layer {
+    name: "empty"
+    type: "empty"
+  }
+  bottom: "label"
   top: "mask_label"
 }
 layers {
@@ -278,11 +286,10 @@ layers {
 }
 layers {
   layer {
-    name: "accuracy"
-    type: "accuracy"
+    name: "loss"
+    type: "l2_loss"
+    l2_size: 24
   }
   bottom: "fc8"
   bottom: "masks"
-  top: "accuracy"
 }
-

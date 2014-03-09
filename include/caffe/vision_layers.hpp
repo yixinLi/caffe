@@ -25,6 +25,25 @@ class NeuronLayer : public Layer<Dtype> {
       vector<Blob<Dtype>*>* top);
 };
 
+    template <typename Dtype>
+    class EmptyLayer : public Layer<Dtype> {
+    public:
+        explicit EmptyLayer(const LayerParameter& param)
+        : Layer<Dtype>(param) {}
+        virtual void SetUp(const vector<Blob<Dtype>*>& bottom,
+                           vector<Blob<Dtype>*>* top);
+        
+    protected:
+        virtual void Forward_cpu(const vector<Blob<Dtype>*>& bottom,
+                                 vector<Blob<Dtype>*>* top);
+        // The empty layer should not be used to compute backward operations.
+        virtual Dtype Backward_cpu(const vector<Blob<Dtype>*>& top,
+                                   const bool propagate_down, vector<Blob<Dtype>*>* bottom) {
+            NOT_IMPLEMENTED;
+            return Dtype(0.);
+        }
+    };
+
 
 template <typename Dtype>
 class ReLULayer : public NeuronLayer<Dtype> {
