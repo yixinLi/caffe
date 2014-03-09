@@ -48,7 +48,9 @@ template <typename Dtype>
 class SigmoidLayer : public NeuronLayer<Dtype> {
 public:
     explicit SigmoidLayer(const LayerParameter& param)
-    : NeuronLayer<Dtype>(param) {}
+        : NeuronLayer<Dtype>(param) {}
+    virtual void SetUp(const vector<Blob<Dtype>*>& bottom,
+                       vector<Blob<Dtype>*>* top);
         
 protected:
     virtual void Forward_cpu(const vector<Blob<Dtype>*>& bottom,

@@ -10,6 +10,16 @@
 namespace caffe {
 
 template <typename Dtype>
+void SigmoidLayer<Dtype>::SetUp(
+  const vector<Blob<Dtype>*>& bottom, vector<Blob<Dtype>*>* top) {
+  CHECK_EQ(bottom.size(), 1) << "Sigmoid Layer takes 1 blob as input.";
+  CHECK_EQ(top->size(), 1) << "Sigmoid Layer takes 1 output.";
+  int size = sqrt(bottom[0]->channels());
+  (*top)[0]->Reshape(bottom[0]->num(), 1, size, size);
+}
+
+
+template <typename Dtype>
 void SigmoidLayer<Dtype>::Forward_cpu(const vector<Blob<Dtype>*>& bottom,
     vector<Blob<Dtype>*>* top) {
   const Dtype* bottom_data = bottom[0]->cpu_data();
